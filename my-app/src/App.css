@@ -36,3 +36,51 @@
     transform: rotate(360deg);
   }
 }
+
+.main__body {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.result {
+  border: 1px solid black;
+  width: 150px;
+  text-align: center;
+  margin: 5px;
+}
+
+.result__table__element {
+  border-top: 1px solid black;
+
+}
+
+.main__result__block {
+  display: flex;
+}
+
+.main__init_block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main__block {
+  border: 1px solid black;
+  margin: 5px;
+  padding: 3px;
+}
+
+.main__block textarea {
+  text-align: center;
+  width: auto;
+  height: auto;
+}
+
+.init {
+  text-align: center;
+}
+
+.init textarea {
+  text-align: center;
+}
