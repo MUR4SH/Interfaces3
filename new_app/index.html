@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+  </head>
+  <style>
+        input{
+            width: 50px;
+            padding: 5px;
+        }
+        input:focus{
+            width: auto;
+        }
+        input[type=button]{
+            width: auto;
+        }
+        span{
+            margin-right: 10px;
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            /* display: none; <- Crashes Chrome on hover */
+            -webkit-appearance: none;
+            margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+        }
+        .matrix{
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+  </style>
+  <body>
+    <div id="root">
+        <div id="works" style = 'display: none;'>
+            <div id="vector"></div>
+            <div id="work">
+                <div id="vector"></div>
+            </div>
+            <div id="results"></div>
+            <input type="button" value='Посчитать' id='calc_button' onclick='calculate()'/>
+            <input type="button" value='Заного' id='reset_button' onclick='restart()'/>
+        </div>
+        <div id="start" style = 'display: block;'>
+            <div>
+                <span>Введите количество матриц</span>
+                <input type='number' id='matrix_num'/>
+            </div>
+            <div>
+                <span>Введите размер матриц</span>
+                <input type='number' id='matrix_len'/>
+            </div>
+            <input type="button" value='Создать' id='init_button' onclick='init()'/>
+        </div>
+    </div>
+  </body>
+    <script>
+        let size = 5;
+        let matrixes = 2;
+        let res_arr = [];
+
+        const computeNet = (vector, matrix) => {
+            if (vector.length !== size || matrix.length !== size) return []
+            const result = Array.from({ length: vector.length }).fill(0)
+            for (let i = 0; i < vector.length; i++) {
+                for (let j = 0; j < matrix.length; j++) {
+                    const vecElem = vector[i]
+                    const matrElem = matrix[j][i]
+                    if (typeof vecElem !== 'number' || typeof matrElem !== 'number') return []
+                    result[i] += vecElem * matrElem
+                }
+            }
+            return result
+        }
+
+        function MultiplyMatrix(a, b){
+            let c =[];
+
+            for(let i=0; i<size; i++) {
+                c[i] = 0;
+                for(let j=0; j<size; j++){
+                    c[i] += a[j]*b[i][j]
+                }
+            }
+            return c;
+        }
+
+        const computeOut = (net) => {
+            return net.map(num => 1 / (1 + Math.pow(Math.E, -num)))
+        }
+
+        function addVector(arr = [], calc = true, i=0){
+            let element = `<div class="row"><span>${calc ? 'VECTOR' : 'OUT'+i}</span>`;
+            for(let j=0; j < size; j++){
+                element += `<input type='number' id='element_${j}' value='${calc ? (Math.random()*10).toFixed(2) : arr[j]}'/>`;
+            }
+            element += '</div>';
+            document.getElementById(calc ? 'vector' : 'results').innerHTML += element;
+        }
+
+        function addMatrix(n = 0, id, arr){
+            let element = `<div class='matrix' id='matrix_${id}'><span>MATRIX ${id}</span>`;
+            for(let i=0; i < n; i++){
+                element += '<div class="row">';
+                for(let j=0; j < n; j++){
+                    element += `<input type='number' id='element_${i}_${j}' value='${1/size}'/>`;
+                }
+                element += '</div>';
+            }
+            element += '</div>';
+            document.getElementById('work').innerHTML += element;
+        }
+
+        function getVector(){
+            let arr = [];
+            let elemM = document.getElementById(`vector`);
+
+            for(let j=0; j < size; j++){
+                arr[j] = elemM.getElementsByTagName('input')[`element_${j}`].value
+            }
+
+            return arr;
+        }
+
+        function getMatrix(id){
+            let arr = [];
+            let elemM = document.getElementById(`matrix_${id}`);
+
+            for(let i=0; i < size; i++){
+                arr[i] = []
+                for(let j=0; j < size; j++){
+                    arr[i][j] = elemM.getElementsByTagName('input')[`element_${i}_${j}`].value
+                }
+            }
+
+            return arr;
+        }
+
+        function init() {
+            if(document.getElementById('matrix_num').value<1 || document.getElementById('matrix_len').value<1){
+                return;
+            }
+            if(!document.getElementById('matrix_num').value || !document.getElementById('matrix_len').value){
+                return;
+            }
+
+            size = document.getElementById('matrix_len').value
+            matrixes = document.getElementById('matrix_num').value
+
+            addVector(size)
+
+            for(let i=0; i< matrixes; i++){
+                addMatrix(size, i)
+            }
+
+            document.getElementById('start').style = 'display:none;';
+            document.getElementById('works').style = 'display:block;';
+        }
+
+        function clear(){
+            res_arr = [];
+            document.getElementById('work').innerHTML = null;
+            document.getElementById('vector').innerHTML = null;
+            document.getElementById('results').innerHTML = null;
+        }
+
+        function calculate() {
+            document.getElementById('results').innerHTML = null;
+            console.log('----------------')
+            const vector = getVector();
+            console.log('vector:',vector)
+            for(let i = 0; i < matrixes; i++){
+                res_arr = MultiplyMatrix(i === 0 ? vector : res_arr, getMatrix(i))
+                res_arr = computeOut(res_arr)
+                addVector(res_arr, calc = false, i)
+            }
+        }
+
+        function restart(){
+            clear();
+            
+            document.getElementById('works').style = 'display:none;';
+            document.getElementById('start').style = 'display:block;';
+        }
+
+    </script>
+</html>
