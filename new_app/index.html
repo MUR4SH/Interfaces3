@@ -29,6 +29,13 @@
             margin-top: 10px;
             margin-bottom: 10px;
         }
+        #results span {
+            display: inline-block;
+            width:40px;
+        }
+        #results .row {
+            margin-bottom: 5px;
+        }
   </style>
   <body>
     <div id="root">
@@ -39,7 +46,7 @@
             </div>
             <div id="results"></div>
             <input type="button" value='Посчитать' id='calc_button' onclick='calculate()'/>
-            <input type="button" value='Заного' id='reset_button' onclick='restart()'/>
+            <input type="button" value='Заново' id='reset_button' onclick='restart()'/>
         </div>
         <div id="start" style = 'display: block;'>
             <div>
@@ -79,8 +86,9 @@
             for(let i=0; i<size; i++) {
                 c[i] = 0;
                 for(let j=0; j<size; j++){
-                    c[i] += a[j]*b[i][j]
+                    c[i] += a[j]*b[j][i]
                 }
+                c[i] = c[i].toFixed(2)
             }
             return c;
         }
@@ -89,8 +97,8 @@
             return net.map(num => 1 / (1 + Math.pow(Math.E, -num)))
         }
 
-        function addVector(arr = [], calc = true, i=0){
-            let element = `<div class="row"><span>${calc ? 'VECTOR' : 'OUT'+i}</span>`;
+        function addVector(arr = [], calc = true, i=0, text){
+            let element = `<div class="row"><span>${calc ? 'VECTOR' : text+i}</span>`;
             for(let j=0; j < size; j++){
                 element += `<input type='number' id='element_${j}' value='${calc ? (Math.random()*10).toFixed(2) : arr[j]}'/>`;
             }
@@ -171,8 +179,9 @@
             console.log('vector:',vector)
             for(let i = 0; i < matrixes; i++){
                 res_arr = MultiplyMatrix(i === 0 ? vector : res_arr, getMatrix(i))
+                addVector(res_arr, calc = false, i, 'NET')
                 res_arr = computeOut(res_arr)
-                addVector(res_arr, calc = false, i)
+                addVector(res_arr, calc = false, i, 'OUT')
             }
         }
 
